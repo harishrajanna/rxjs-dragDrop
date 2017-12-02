@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #dragMe{
+            height:100px;
+            width:100px;
+            background: green;
+            cursor: pointer;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="dragMe"></div>
+    <script    src="jquery-3.2.1.js"></script>
+    <script    src="Rx.js"></script>
+    <script>
+        var ele=document.getElementById("dragMe")
+        var mouseDown=Rx.Observable.fromEvent(ele,"mousedown");
+        var mouseMove=Rx.Observable.fromEvent(document,"mousemove");
+        var mouseUp=Rx.Observable.fromEvent(document,"mouseup");
+
+        var dragEvent=mouseDown.flatMap(md=>{
+            //console.log("md",md);
+            return mouseMove
+            .map(mm=>{
+                mm.preventDefault();
+                //console.log("mm,md",mm,md);
+                return {
+                    left:mm.clientX-md.offsetX,
+                    top:mm.clientY-md.offsetY
+                }
+            })
+            .takeUntil(mouseUp)
+        });
+        dragEvent.subscribe(pos=>{
+            //console.log("darg event",pos)
+            ele.style.left=pos.left+"px";
+            ele.style.top=pos.top+"px";
+        })
+    </script>
+</body>
+</html>
